@@ -1,43 +1,30 @@
-
 pipeline{
-    
-    agent any  // here any = current available ec2 server where jenkins is installed
-    
-    tools{
-        maven 'mymaven'
-    
+agent any
+  tools{
+     maven 'mymaven'
+  }
+
+stages{
+stage('clone Repo')
+  {
+    steps{
+       git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'     
     }
-    
-    stages{
-        
-        stage('Checkout Code')
-        {
-            steps{
-                git 'https://github.com/Sonal0409/DevOpsCodeDemo.git'
-            }
-        }
-        stage('Compile Code'){
-            steps{
-                echo "compiling the code...."
-                sh 'mvn compile'
-            }
-        }
-        stage('Test code'){
-            steps{
-                echo "testing the code using maven surefire"
-                sh 'mvn test'
-            }
-        }
-        
-        stage('BuildCode'){
-            steps{
-                echo "generating artifact..."
-                sh 'mvn package'
-            }
-        }
-        
+  }
+stage('Build Code')
+  {
+    steps{
+       sh 'mvn package'   
     }
-    
-    
-    
+  }
+
+stage('Deploy Code')
+  {
+    steps{
+      deploy adapters: [tomcat9(credentialsId: 'tomcatcredentials', path: '', url: 'http://http://54.210.246.8:8080//')], contextPath: null, war: '**/*.war'
+    }
+  }
+}
+
+  
 }
